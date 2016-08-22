@@ -14,9 +14,6 @@ const responseTemplate = (response, statusCode, contentType, content) => {
   response.end(content)
 }
 
-const responseHtmlTemplate = (response, statusCode, content) => responseTemplate(response, statusCode, 'text/html', content)
-const responsePlainTemplate = (response, statusCode, content) => responseTemplate(response, statusCode, 'text/plain', content)
-
 const loadView = (path) => {
   let viewPath = (path.indexOf('/') == 0 ? viewDir : viewDir + '/') + path
 
@@ -34,17 +31,10 @@ const requestLoggingTemplate = (request) => {
 const requestHandler = (request, response) => {
   let requestLogging = () => requestLoggingTemplate(request)
 
-  class ResponseSet {
-    html(statusCode, content) { responseHtmlTemplate(response, statusCode, content) }
-    plain(statusCode, content) { responsePlainTemplate(response, statusCode, content) }
-  }
-
-  let responseSet = new ResponseSet(response)
-
   console.time('Render')
   let render = (format, statusCode, content) => {
     requestLogging()
-    responseSet[format](statusCode, content)
+    responseTemplate(response, statusCode, `text/${format}`, content)
     console.timeEnd('Render')
   }
   
