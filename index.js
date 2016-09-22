@@ -1,5 +1,6 @@
 const http = require('http')
 const fs = require('fs')
+const querystring = require('querystring')
 
 const characterSet = 'utf-8'
 const appDir = 'app'
@@ -22,7 +23,7 @@ const loadView = (path) => {
 
 const requestLoggingTemplate = (request) => {
   let currentTime = new Date()
-
+  
   console.log('')
   console.log(`[${currentTime}] ${request.method} ${request.headers.host}${request.url}`)
   console.log(request.headers['user-agent'])
@@ -38,18 +39,27 @@ const requestHandler = (request, response) => {
     console.timeEnd('Render')
   }
   
-  if (request.url == '/') {
+  if (request.url == '/board') {
     render('html', 200, 'Root!')
   }
 
-  if (request.url == '/board') {
+  if (request.url == '/board/write') {
+    if (request.method == 'GET') {
 	  let viewFile = loadView('main/write.html')
-
-    if (viewFile != null) {
-      render('html', 200, viewFile)
-    } else {
-      render('plain', 500, viewFile)
-    }
+	
+      if (viewFile != null) {
+        render('html', 200, viewFile)
+      } else {
+        render('plain', 500, viewFile)
+      }
+	} else if (request.method == 'POST') {
+	  render('html', 200, 'POST Test\n')
+	  request.on('data', (chunk) => { 
+	    console.log(querystring.parse(chunk.toString()))
+      })
+	} else {
+      render('html', 404, 'Not Found!') 
+	}
   }
 }
 
